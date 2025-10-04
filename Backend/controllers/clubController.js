@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import prisma from "../DB/db.config.js";
 
 export const getAllClubs = async (req, res) => {
   try {
@@ -12,13 +11,25 @@ export const getAllClubs = async (req, res) => {
 };
 
 export const addClub = async (req, res) => {
-  const { name, description, membersCount } = req.body;
+
+  const { club_name, description, logo_image, type } = req.body; 
+
+
+  const { membersCount } = req.body; 
+
+
+  if (!club_name || !description || !logo_image || !type) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
   try {
     const newClub = await prisma.club.create({
       data: {
-        name,
+        club_name,
         description,
-        membersCount: membersCount || 0,
+        membersCount: membersCount || 0, 
+        logo_image,
+        type,
       },
     });
     res.status(201).json(newClub);
