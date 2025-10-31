@@ -48,7 +48,7 @@ Start by **forking** the repository to your own GitHub account, then clone it lo
 ```bash
 # Fork the repository first on GitHub
 # Then clone your forked version:
-git clone <YOUR_FORKED_GITHUB_REPO_LINK>
+git clone https://github.com/raman976/Clubs-and-Societies-Management-System.git
 cd clubs-and-societies-event-management
 ```
 
