@@ -1,1 +1,71 @@
-# Clubs-and-Societies-Management-System
+# 🏛️ Club and Societies Event Management System (Full-Stack)
+
+## 🌟 Project Overview
+
+
+This is a **Full-Stack Web Application** designed to manage Clubs, Societies, and their Events. The project consists of a backend API (built with Node.js/Express/Prisma) and a separate frontend client (to be built) that interacts with the API to display information, manage clubs, and allow user registrations.
+
+### 🎯 Proposed Solution
+We propose to develop a web-based Club and Society Hub, a centralized platform that streamlines club management and event updates.
+
+### Key features include:
+A dashboard for clubs to post events, manage members, and share updates.
+A unified feed for students to view all upcoming events and register for them.
+Search and filter options to explore clubs based on interests or categories.
+Admin and club leader panels for better control and moderation.
+This platform will serve as the digital ecosystem for college clubs, improving visibility, participation, and coordination.
+
+
+
+---
+
+## 🛠️ Tech Stack
+
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Backend** | **Node.js** & **Express.js** | The server runtime and minimalist web framework. |
+| **Database** | **MySQL** | The relational database used for persistent storage. |
+| **ORM** | **Prisma** | Modern database toolkit used for schema definition and queries. |
+| **Frontend** | **[Placeholder - e.g., React.js / Next.js]** | The client-side framework used for the user interface. |
+| **Package Mgr.** | **npm** | Used for managing project dependencies. |
+
+---
+
+## 💻 Local Setup Instructions (Detailed)
+
+### Prerequisites
+
+You must have the following installed on your system:
+
+* **Node.js** (v18 or higher recommended)
+* **MySQL Server** (or a similar relational database)
+* **Git**
+
+### Step 1: Fork and Clone the Repository
+
+Start by **forking** the repository to your own GitHub account, then clone it locally.
+
+```bash
+# Fork the repository first on GitHub
+# Then clone your forked version:
+git clone https://github.com/raman976/Clubs-and-Societies-Management-System.git
+cd clubs-and-societies-event-management
+```
+
+### Step 2: Install Dependencies
+
+```bash
+npm install
+```
+
+### Step 3: Setup Database Schema and Client
+
+```bash
+npx prisma generate
+```
+
+### Step 4: Run the Server
+
+```bash
+npm run dev
+```
