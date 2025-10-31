@@ -20,7 +20,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      console.log('Attempting login with:', { email }); // Debug log
+      console.log('Attempting login with:', { email }); 
       const res = await fetch("http://localhost:3001/api/auth/login", {
         method: "POST",
         headers: { 
@@ -31,9 +31,9 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('Response status:', res.status); // Debug log
+      console.log('Response status:', res.status); 
       const data = await res.json();
-      console.log('Response data:', data); // Debug log
+      console.log('Response data:', data); 
       
       setLoading(false);
 
@@ -47,11 +47,11 @@ const Login = () => {
         return;
       }
 
-      // Store access token in localStorage
+
       localStorage.setItem("accessToken", data.accessToken);
       console.log('Token stored, navigating to dashboard');
       
-      // Redirect after login
+
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -62,7 +62,7 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      {/* Left Section */}
+
       <section className="login-left">
         <h1 className="app-title">CLUB & SOCIETY HUB</h1>
         <p className="description">
@@ -72,7 +72,7 @@ const Login = () => {
         </p>
       </section>
 
-      {/* Right Section */}
+
       <section className="login-right">
         <h2 className="login-heading">Sign In to Continue</h2>
 
