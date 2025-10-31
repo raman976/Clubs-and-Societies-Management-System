@@ -13,43 +13,51 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  MEMBER
+  PRESIDENT
+  VICE_PRESIDENT
+  HANDLER
+  SUPER_ADMIN
+}
 
 model Club {
-  id           Int      @id @default(autoincrement())
-  club_name         String
+  id           Int          @id @default(autoincrement())
+  club_name    String
   description  String
-  membersCount Int?      @default(0)
-  logo_image String
-  type String
-  event Events[]
+  membersCount Int?         @default(0)
+  logo_image   String
+  type         String
+  event        Events[]
   core_members CoreMember[]
-  gallery Gallery[]
+  gallery      Gallery[]
 }
 
-model Events{
-  id  Int      @id @default(autoincrement())
-  name String 
+model Events {
+  id          Int      @id @default(autoincrement())
+  name        String
   description String
-  venue String 
-  start_time DateTime
-  end_time DateTime
-  poc String
-  club_id Int
-  club    Club    @relation(fields: [club_id], references: [id])
+  venue       String
+  start_time  DateTime
+  end_time    DateTime
+  poc         String
+  club_id     Int
+  club        Club     @relation(fields: [club_id], references: [id])
 }
 
-model CoreMember{
-  id       Int    @id @default(autoincrement())
-  name     String
-  email    String @unique
-  phone    String
-  role     String
-  password String
-  club_id Int
-  club    Club   @relation(fields: [club_id], references: [id])
+model CoreMember {
+  id               Int     @id @default(autoincrement())
+  name             String
+  email            String  @unique
+  phone            String
+  role             Role    @default(MEMBER)
+  password         String
+  refreshTokenHash String?
+  club_id          Int
+  club             Club    @relation(fields: [club_id], references: [id])
 }
 
-model Gallery{
+model Gallery {
   id      Int     @id @default(autoincrement())
   url     String
   text    String?
@@ -57,9 +65,4 @@ model Gallery{
   club    Club    @relation(fields: [club_id], references: [id])
 }
 
-model User {
-  id Int @id @default(autoincrement())
-  name String
-  email String @unique 
-  password String
-}
+
