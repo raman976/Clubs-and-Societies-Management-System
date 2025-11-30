@@ -1,9 +1,9 @@
 const API_BASE_URL = "http://localhost:3001/api";
 
-// Simple helper to get access token from localStorage
+// Simple helper to get access token from sessionStorage (less persistent)
 function getAccessToken() {
   try {
-    return localStorage.getItem("accessToken");
+    return sessionStorage.getItem("accessToken");
   } catch (err) {
     console.error("Could not read accessToken:", err);
     return null;
@@ -21,7 +21,8 @@ async function refreshToken() {
     if (!response.ok) return null;
     const body = await response.json();
     if (body && body.accessToken) {
-      localStorage.setItem("accessToken", body.accessToken);
+      // store token in sessionStorage so it doesn't persist across browser restarts
+      sessionStorage.setItem("accessToken", body.accessToken);
       return body.accessToken;
     }
     return null;
@@ -68,18 +69,21 @@ async function makeRequest(method, endpoint, data) {
     let body = text;
     try {
       body = JSON.parse(text);
-    } catch (e) {
+    } catch {
       // not JSON
     }
     const msg = `HTTP ${response.status} - ${JSON.stringify(body)}`;
-    throw new Error(msg);
+    const err = new Error(msg);
+    err.status = response.status;
+    err.body = body;
+    throw err;
   }
 
   // parse body if present
   const text = await response.text().catch(() => "");
   try {
     return JSON.parse(text);
-  } catch (e) {
+  } catch {
     return text;
   }
 }

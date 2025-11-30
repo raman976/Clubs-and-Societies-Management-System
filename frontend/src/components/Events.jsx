@@ -97,7 +97,7 @@ const Events = () => {
       {/* Create event button for authorized roles */}
       <div className="max-w-[1200px] mx-auto px-8 mt-6">
         {(() => {
-          const role = localStorage.getItem("role");
+          const role = sessionStorage.getItem("role") || localStorage.getItem("role");
           const allowed = ["PRESIDENT", "VICE_PRESIDENT", "HANDLER", "SUPER_ADMIN"];
           if (role && allowed.includes(role)) {
             return (

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import api from '../lib/api';
@@ -7,12 +8,14 @@ const allowedRoles = ['SUPER_ADMIN', 'PRESIDENT', 'VICE_PRESIDENT'];
 
 const ManageMembers = () => {
   const [members, setMembers] = useState([]);
+  const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', role: 'MEMBER', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', role: 'MEMBER', password: '', club_id: '' });
   const [editingId, setEditingId] = useState(null);
+  const navigate = useNavigate();
 
-  const role = typeof window !== 'undefined' ? localStorage.getItem('role') : null;
+  const role = typeof window !== 'undefined' ? (sessionStorage.getItem('role') || localStorage.getItem('role')) : null;
   if (!allowedRoles.includes(role)) {
     return (
       <div className="min-h-screen bg-[#f6efe6]">
@@ -24,10 +27,22 @@ const ManageMembers = () => {
   }
 
   useEffect(() => {
+    // fetch clubs if super admin so they can assign a club
+    if (role === 'SUPER_ADMIN') fetchClubs();
     fetchMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchMembers = async () => {
+  const fetchClubs = async () => {
+    try {
+      const data = await api.get('/clubs');
+      setClubs(data || []);
+    } catch (err) {
+      console.error('Failed to load clubs', err);
+    }
+  };
+
+  const fetchMembers = async (retry = true) => {
     try {
       setLoading(true);
       const data = await api.get('/members');
@@ -35,7 +50,21 @@ const ManageMembers = () => {
       setError(null);
     } catch (err) {
       console.error(err);
-      setError('Failed to load members');
+      setError(err.message || 'Failed to load members');
+      // if unauthorized, redirect to login
+      if (err && err.status === 401) {
+        // try once to refresh by calling refresh endpoint directly
+        if (retry) {
+          try {
+            await api.post('/auth/refresh');
+            return fetchMembers(false);
+          } catch (_) {
+            window.location.href = '/login';
+            return;
+          }
+        }
+        window.location.href = '/login';
+      }
     } finally {
       setLoading(false);
     }
@@ -46,15 +75,20 @@ const ManageMembers = () => {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      // club_id: if not superadmin, use current user's club_id
-      const club_id = localStorage.getItem('club_id') || undefined;
-      const payload = { ...form, club_id };
+      // club_id: superadmin chooses; otherwise use current user's club_id
+      const payload = { ...form };
+      if (!payload.club_id) {
+        payload.club_id = Number(sessionStorage.getItem('club_id') || localStorage.getItem('club_id')) || undefined;
+      } else {
+        payload.club_id = Number(payload.club_id);
+      }
       await api.post('/members', payload);
-      setForm({ name: '', email: '', phone: '', role: 'MEMBER', password: '' });
+      setForm({ name: '', email: '', phone: '', role: 'MEMBER', password: '', club_id: '' });
       fetchMembers();
     } catch (err) {
       console.error(err);
-      alert('Failed to create member: ' + err.message);
+      if (err && err.status === 401) return (window.location.href = '/login');
+      alert('Failed to create member: ' + (err.message || err));
     }
   };
 
@@ -65,18 +99,19 @@ const ManageMembers = () => {
       fetchMembers();
     } catch (err) {
       console.error(err);
+      if (err && err.status === 401) return (window.location.href = '/login');
       alert('Failed to delete member');
     }
   };
 
   const startEdit = (m) => {
     setEditingId(m.id);
-    setForm({ name: m.name || '', email: m.email || '', phone: m.phone || '', role: m.role || 'MEMBER', password: '' });
+    setForm({ name: m.name || '', email: m.email || '', phone: m.phone || '', role: m.role || 'MEMBER', password: '', club_id: m.club_id || '' });
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setForm({ name: '', email: '', phone: '', role: 'MEMBER', password: '' });
+    setForm({ name: '', email: '', phone: '', role: 'MEMBER', password: '', club_id: '' });
   };
 
   const submitEdit = async (e) => {
@@ -84,13 +119,20 @@ const ManageMembers = () => {
     try {
       const payload = { ...form };
       if (!payload.password) delete payload.password;
+      if (payload.club_id) payload.club_id = Number(payload.club_id);
       await api.put(`/members/${editingId}`, payload);
       cancelEdit();
       fetchMembers();
     } catch (err) {
       console.error(err);
-      alert('Failed to update member: ' + err.message);
+      if (err && err.status === 401) return (window.location.href = '/login');
+      alert('Failed to update member: ' + (err.message || err));
     }
+  };
+
+  const findClubName = (id) => {
+    const c = clubs.find((x) => x.id === id);
+    return c ? c.club_name : id;
   };
 
   return (
@@ -111,6 +153,17 @@ const ManageMembers = () => {
               <option value="VICE_PRESIDENT">VICE_PRESIDENT</option>
               {role === 'SUPER_ADMIN' && <option value="SUPER_ADMIN">SUPER_ADMIN</option>}
             </select>
+            {role === 'SUPER_ADMIN' ? (
+              <select name="club_id" value={form.club_id} onChange={handleChange} className="p-2 border rounded">
+                <option value="">Select club</option>
+                {clubs.map((c) => (
+                  <option key={c.id} value={c.id}>{c.club_name}</option>
+                ))}
+              </select>
+            ) : (
+              <input name="club_id" value={sessionStorage.getItem('club_id') || localStorage.getItem('club_id') || ''} readOnly className="p-2 border rounded" />
+            )}
+
             <input name="password" value={form.password} onChange={handleChange} placeholder="Password" type="password" required className="p-2 border rounded col-span-2 md:col-span-1" />
             <div className="col-span-2">
               <button className="bg-[#12202b] text-white px-4 py-2 rounded">Create</button>
@@ -144,7 +197,7 @@ const ManageMembers = () => {
                       <td className="p-2">{m.email}</td>
                       <td className="p-2">{m.phone}</td>
                       <td className="p-2">{m.role}</td>
-                      <td className="p-2">{m.club_id}</td>
+                      <td className="p-2">{findClubName(m.club_id)}</td>
                       <td className="p-2">
                         <button onClick={() => startEdit(m)} className="mr-2 text-sm text-blue-600">Edit</button>
                         <button onClick={() => handleDelete(m.id)} className="text-sm text-red-600">Delete</button>
@@ -170,6 +223,16 @@ const ManageMembers = () => {
                 <option value="VICE_PRESIDENT">VICE_PRESIDENT</option>
                 {role === 'SUPER_ADMIN' && <option value="SUPER_ADMIN">SUPER_ADMIN</option>}
               </select>
+              {role === 'SUPER_ADMIN' ? (
+                <select name="club_id" value={form.club_id} onChange={handleChange} className="p-2 border rounded">
+                  <option value="">Select club</option>
+                  {clubs.map((c) => (
+                    <option key={c.id} value={c.id}>{c.club_name}</option>
+                  ))}
+                </select>
+              ) : (
+                <input name="club_id" value={sessionStorage.getItem('club_id') || localStorage.getItem('club_id') || ''} readOnly className="p-2 border rounded" />
+              )}
               <input name="password" value={form.password} onChange={handleChange} placeholder="Password (leave blank to keep)" type="password" className="p-2 border rounded col-span-2 md:col-span-1" />
               <div className="col-span-2">
                 <button className="bg-[#12202b] text-white px-4 py-2 rounded mr-2">Save</button>

@@ -85,7 +85,8 @@ export default function Login() {
       setLoading(false);
       if (!res.ok) return setError(data.error || "Invalid credentials");
       if (!data.accessToken) return setError("No access token received");
-      localStorage.setItem("accessToken", data.accessToken);
+      // Use sessionStorage so the login does not persist across browser restarts
+      sessionStorage.setItem("accessToken", data.accessToken);
 
       // decode token payload to store role and club_id for quick UI checks
       const parseJwt = (token) => {
@@ -108,9 +109,9 @@ export default function Login() {
       };
       const payload = parseJwt(data.accessToken);
       if (payload) {
-        if (payload.role) localStorage.setItem("role", payload.role);
-        if (payload.club_id) localStorage.setItem("club_id", String(payload.club_id));
-        if (payload.sub) localStorage.setItem("userId", String(payload.sub));
+        if (payload.role) sessionStorage.setItem("role", payload.role);
+        if (payload.club_id) sessionStorage.setItem("club_id", String(payload.club_id));
+        if (payload.sub) sessionStorage.setItem("userId", String(payload.sub));
       }
 
       // navigate to dashboard for a smoother flow

@@ -14,9 +14,8 @@ const EventDetail = () => {
   const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState("")
 
-  const canViewData = ["SUPER_ADMIN", "PRESIDENT", "VICE_PRESIDENT"].includes(
-    localStorage.getItem("role")
-  );
+  const role = (typeof window !== 'undefined') ? (sessionStorage.getItem('role') || localStorage.getItem('role')) : null;
+  const canViewData = ["SUPER_ADMIN", "PRESIDENT", "VICE_PRESIDENT"].includes(role);
 
 //   event details
   useEffect(() => {
