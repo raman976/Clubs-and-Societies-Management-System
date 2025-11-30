@@ -1,23 +1,21 @@
-import React, { useState, useEffect } from "react"; // Import hooks
+import React, { useState, useEffect } from "react"; 
+import { motion } from "framer-motion";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
 import api from "../lib/api";
 
 const Events = () => {
-  // Set up state to hold the categorized events
+
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [ongoingEvents, setOngoingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  /**
-   * Helper function to transform the API event object into the
-   * format your JSX component expects.
-   */
+
   const transformEvent = (event) => {
-    // Simple transformer: map API fields to what the UI expects.
+
     const start = new Date(event.start_time);
     const end = new Date(event.end_time);
     const timeString = `${start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
@@ -35,7 +33,7 @@ const Events = () => {
     };
   };
 
-  // Fetch and categorize events when the component mounts
+
   useEffect(() => {
     const fetchAndCategorizeEvents = async () => {
       try {
@@ -68,7 +66,7 @@ const Events = () => {
     };
 
     fetchAndCategorizeEvents();
-  }, []); // The empty array [] means this effect runs once on mount
+  }, []); 
 
   if (loading) {
     return (
@@ -94,7 +92,7 @@ const Events = () => {
     <div className="min-h-screen w-full overflow-x-hidden bg-[#f6efe6] pt-24">
       <Navbar />
 
-      {/* Create event button for authorized roles */}
+
       <div className="max-w-[1200px] mx-auto px-8 mt-6">
         {(() => {
           const role = sessionStorage.getItem("role") || localStorage.getItem("role");
@@ -110,7 +108,6 @@ const Events = () => {
         })()}
       </div>
 
-      {/* ... (Hero section remains the same) ... */}
       <section className="pt-32 pb-12 bg-gradient-to-b from-[#f3e6d9] to-[#f6efe6]">
         <div className="max-w-[1200px] mx-auto px-8">
           <h1 className="font-['Playfair_Display'] text-6xl text-[#12202b] mb-6 font-normal text-center">
@@ -124,7 +121,6 @@ const Events = () => {
         </div>
       </section>
 
-      {/* This summary section will now dynamically show the counts */}
       <section className="py-8 bg-[#f6efe6]">
         <div className="max-w-[1200px] mx-auto px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -156,7 +152,6 @@ const Events = () => {
         </div>
       </section>
 
-      {/* This section will now only show if 'ongoingEvents' has items */}
       {ongoingEvents.length > 0 && (
         <section className="py-16 bg-[#f6efe6]">
           <div className="max-w-[1200px] mx-auto px-8">
@@ -170,10 +165,14 @@ const Events = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {ongoingEvents.map((event) => (
-                <div
+              {ongoingEvents.map((event, index) => (
+                <motion.div
                   key={event.id}
-                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all group"
+                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all group"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -8 }}
                 >
                   <div className="relative h-56 overflow-hidden">
                     <img
@@ -181,7 +180,7 @@ const Events = () => {
                       alt={event.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                    <div className="absolute top-4 right-4 bg-[#FFC107] text-[#12202b] px-4 py-2 rounded-lg text-center font-bold shadow-lg">
+                    <div className="absolute top-4 right-4 bg-[#b8894a] text-[#12202b] px-4 py-2 rounded-lg text-center font-bold shadow-lg">
                       <span className="block text-2xl leading-none">
                         {event.date}
                       </span>
@@ -197,17 +196,14 @@ const Events = () => {
                     </div>
                   </div>
                   <div className="p-6">
-                    <h3 className="font-['Playfair_Display'] text-2xl text-[#12202b] mb-3 font-semibold line-clamp-2">
+                    <h3 className="font-['Playfair_Display'] text-2xl text-[#12202b] mb-4 font-semibold line-clamp-2">
                       {event.title}
                     </h3>
-                    {/* <p className="text-[#7b6f61] mb-4 leading-relaxed line-clamp-2">
-                      {event.description}
-                    </p> */}
 
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center gap-2 text-sm text-[#7b6f61]">
                         <svg
-                          className="w-4 h-4 text-[#b8894a]"
+                          className="w-4 h-4 text-[#b8894a] flex-shrink-0"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -223,7 +219,7 @@ const Events = () => {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-[#7b6f61]">
                         <svg
-                          className="w-4 h-4 text-[#b8894a]"
+                          className="w-4 h-4 text-[#b8894a] flex-shrink-0"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -243,55 +239,41 @@ const Events = () => {
                         </svg>
                         <span>{event.location}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-[#7b6f61]">
-                        <svg
-                          className="w-4 h-4 text-[#b8894a]"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                          />
-                        </svg>
-                        <span>{event.attendees} attendees</span>
-                      </div>
                     </div>
 
-                    <Link to={`/events/${event.id}`} className="w-full block text-center bg-[#FFC107] text-[#12202b] px-8 py-3 rounded-lg font-semibold hover:bg-[#b8894a] hover:text-white transition-all hover:-translate-y-0.5 hover:shadow-lg">
+                    <Link to={`/events/${event.id}`} className="w-full block text-center bg-[#b8894a] text-[#12202b] px-8 py-3 rounded-lg font-semibold hover:bg-[#b8894a] hover:text-white transition-all hover:-translate-y-0.5 hover:shadow-lg">
                       Learn More
                     </Link>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* This section will now map over the fetched 'upcomingEvents' */}
       <section className="py-16 bg-[#f3e6d9]">
         <div className="max-w-[1200px] mx-auto px-8">
           <h2 className="font-['Playfair_Display'] text-4xl text-[#12202b] mb-8 font-normal">
             Upcoming Events
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {upcomingEvents.map((event) => (
-              <div
+            {upcomingEvents.map((event, index) => (
+              <motion.div
                 key={event.id}
-                className="bg-white rounded-lg overflow-hidden shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all group"
+                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all group"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ y: -8 }}
               >
-                {/* ... (card structure remains the same) ... */}
                 <div className="relative h-56 overflow-hidden">
                   <img
                     src={event.image}
                     alt={event.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute top-4 right-4 bg-[#FFC107] text-[#12202b] px-4 py-2 rounded-lg text-center font-bold shadow-lg">
+                  <div className="absolute top-4 right-4 bg-[#b8894a] text-[#12202b] px-4 py-2 rounded-lg text-center font-bold shadow-lg">
                     <span className="block text-2xl leading-none">
                       {event.date}
                     </span>
@@ -304,28 +286,23 @@ const Events = () => {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="font-['Playfair_Display'] text-2xl text-[#12202b] mb-3 font-semibold line-clamp-2">
+                  <h3 className="font-['Playfair_Display'] text-2xl text-[#12202b] mb-4 font-semibold line-clamp-2">
                     {event.title}
                   </h3>
-                  {/* <p className="text-[#7b6f61] mb-4 leading-relaxed line-clamp-2">
-                    {event.description}
-                  </p> */}
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-[#7b6f61]">
-                      {/* ... (icon) ... */}
-                      <svg className="w-4 h-4 text-[#b8894a]" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /> </svg>
+                      <svg className="w-4 h-4 text-[#b8894a] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       <span>{event.time}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-[#7b6f61]">
-                      {/* ... (icon) ... */}
-                      <svg className="w-4 h-4 text-[#b8894a]" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /> </svg>
+                      <svg className="w-4 h-4 text-[#b8894a] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
                       <span>{event.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[#7b6f61]">
-                      {/* ... (icon) ... */}
-                      <svg className="w-4 h-4 text-[#b8894a]" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /> </svg>
-                      <span>{event.attendees} attendees</span>
                     </div>
                   </div>
 
@@ -333,32 +310,34 @@ const Events = () => {
                     Learn More
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* This section will now map over the fetched 'pastEvents' */}
       <section className="py-16 bg-[#f6efe6]">
         <div className="max-w-[1200px] mx-auto px-8">
           <h2 className="font-['Playfair_Display'] text-4xl text-[#12202b] mb-8 font-normal">
             Past Events
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {pastEvents.map((event) => (
-              <div
+            {pastEvents.map((event, index) => (
+              <motion.div
                 key={event.id}
-                className="bg-white rounded-lg overflow-hidden shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all group"
+                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all group"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ y: -8 }}
               >
-                {/* ... (card structure remains the same) ... */}
                 <div className="relative h-56 overflow-hidden">
                   <img
                     src={event.image}
                     alt={event.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute top-4 right-4 bg-[#FFC107] text-[#12202b] px-4 py-2 rounded-lg text-center font-bold shadow-lg">
+                  <div className="absolute top-4 right-4 bg-[#b8894a] text-[#12202b] px-4 py-2 rounded-lg text-center font-bold shadow-lg">
                     <span className="block text-2xl leading-none">
                       {event.date}
                     </span>
@@ -371,36 +350,31 @@ const Events = () => {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="font-['Playfair_Display'] text-2xl text-[#12202b] mb-3 font-semibold line-clamp-2">
+                  <h3 className="font-['Playfair_Display'] text-2xl text-[#12202b] mb-4 font-semibold line-clamp-2">
                     {event.title}
                   </h3>
-                  {/* <p className="text-[#7b6f61] mb-4 leading-relaxed line-clamp-2">
-                    {event.description}
-                  </p> */}
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-[#7b6f61]">
-                      {/* ... (icon) ... */}
-                      <svg className="w-4 h-4 text-[#b8894a]" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /> </svg>
+                      <svg className="w-4 h-4 text-[#b8894a] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       <span>{event.time}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-[#7b6f61]">
-                      {/* ... (icon) ... */}
-                      <svg className="w-4 h-4 text-[#b8894a]" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /> </svg>
+                      <svg className="w-4 h-4 text-[#b8894a] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
                       <span>{event.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[#7b6f61]">
-                      {/* ... (icon) ... */}
-                      <svg className="w-4 h-4 text-[#b8894a]" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /> </svg>
-                      <span>{event.attendees} attendees</span>
                     </div>
                   </div>
 
-                  <Link to={`/events/${event.id}`} className="w-full block text-center bg-[#ECD6B4] text-[#12202b] px-8 py-3 rounded-lg font-semibold hover:bg-[#b8894a] hover:text-white transition-all">
+                  <Link to={`/events/${event.id}`} className="w-full block text-center bg-[#b8894a] text-[#12202b] px-8 py-3 rounded-lg font-semibold hover:bg-[#b8894a] hover:text-white transition-all hover:-translate-y-0.5 hover:shadow-lg">
                     Learn More
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

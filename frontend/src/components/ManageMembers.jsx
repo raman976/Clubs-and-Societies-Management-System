@@ -16,6 +16,13 @@ const ManageMembers = () => {
   const navigate = useNavigate();
 
   const role = typeof window !== 'undefined' ? (sessionStorage.getItem('role') || localStorage.getItem('role')) : null;
+
+  useEffect(() => {
+    // fetch clubs if super admin so they can assign a club
+    if (role === 'SUPER_ADMIN') fetchClubs();
+    fetchMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   if (!allowedRoles.includes(role)) {
     return (
       <div className="min-h-screen bg-[#f6efe6]">
@@ -26,12 +33,16 @@ const ManageMembers = () => {
     );
   }
 
+<<<<<<< HEAD
   useEffect(() => {
     // fetch clubs if super admin so they can assign a club
     if (role === 'SUPER_ADMIN') fetchClubs();
     fetchMembers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+=======
+
+>>>>>>> origin/main
 
   const fetchClubs = async () => {
     try {

@@ -33,7 +33,7 @@ const CreateEvent = () => {
         allowed_email_domain: form.restrict_email_domain ? form.allowed_email_domain : undefined,
       };
       const created = await api.post("/events", payload);
-      // navigate to new event detail when created
+
       if (created?.id) navigate(`/events/${created.id}`);
       else navigate("/events");
     } catch (err) {

@@ -17,7 +17,7 @@ const EventDetail = () => {
   const role = (typeof window !== 'undefined') ? (sessionStorage.getItem('role') || localStorage.getItem('role')) : null;
   const canViewData = ["SUPER_ADMIN", "PRESIDENT", "VICE_PRESIDENT"].includes(role);
 
-//   event details
+
   useEffect(() => {
     async function loadEvent() {
       try {
@@ -34,7 +34,7 @@ const EventDetail = () => {
     loadEvent();
   }, [id]);
 
-//   form state
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -48,11 +48,10 @@ const EventDetail = () => {
     });
   };
 
-//   submition(form)
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError("");
-    // client-side domain check
     if (event?.restrict_email_domain) {
       const allowed = (event.allowed_email_domain || "").toLowerCase();
       if (!form.email?.toLowerCase()?.endsWith(`@${allowed}`)) {
@@ -69,7 +68,6 @@ const EventDetail = () => {
     }
   };
 
-//   loading UI
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f6efe6]">
@@ -80,7 +78,6 @@ const EventDetail = () => {
     );
   }
 
-//   error handeling
   if (error) {
     return (
       <div className="min-h-screen bg-[#f6efe6]">
@@ -115,7 +112,6 @@ const EventDetail = () => {
         </div>
 
 
-        {/* button for selected roles */}
         {canViewData && (
           <button
             onClick={() => navigate(`/events/${id}/registrations`)}
@@ -125,7 +121,6 @@ const EventDetail = () => {
           </button>
         )}
 
-        {/* registration form */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl mb-4">Register</h2>
 
